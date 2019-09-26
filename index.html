@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Choi Hui Online</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script language="javascript" type="text/javascript"
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <style>
+      .hide {
+        display: none;
+      }
+
+      body {
+        padding: 20px;
+        font-size: 2em;
+      }
+    </style>
+</head>
+<body>
+  <div class="warning text-center" style='font-size: 3em'>
+  </div>
+  <div class="container hide" style="">
+      <div id="my-info" class='hide'>
+        <p style='font-size: 1.5em; font-weight: bold;'>Your info:</p>
+      </div>
+      <div id="txStatus" class='hide'></div>
+      <hr>
+      <div id="zombies" class='hide'></div>
+      <hr>
+      <div class="join-div hide text-center">
+        <button id='join' style="padding: 10px 40px; font-size: 1em">JOIN US</button>
+      </div>
+
+      <button id='get-my-info' class='hide' style="padding: 10px 40px; font-size: 1em">GET MY INFO</button>
+      <button id='getmem' class='hide' style="padding: 10px 40px; font-size: 1em">GET MEMBERS</button>
+      <div class="vote">
+        <button id='vote' class='hide' style="padding: 10px 40px; font-size: 1em">Vote</button>
+        <div class="vote_candidate hide">
+          <button class='vote_button' data-value='0' type="button" id="vote_option1"></button>
+          <button class='vote_button' data-value='1' type="button" id="vote_option2"></button>
+          <button class='vote_button' data-value='2' type="button" id="vote_option3"></button>
+          <div class="vote-result hide">
+            Vote result:
+            <span id='vote1' style="padding: 20px; font-size:1.5em"></span>
+            <span id='vote2' style="padding: 20px; font-size:1.5em"></span>
+            <span id='vote3' style="padding: 20px; font-size:1.5em"></span>
+          </div>
+        </div>
+      </div>
+  </div>
+<script>
+    var huiABI = [
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "votedCount",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_message",
+				"type": "string"
+			}
+		],
+		"name": "speeching",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "viewBalance",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "memberToId",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "members",
+		"outputs": [
+			{
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"name": "wallet_address",
+				"type": "address"
+			},
+			{
+				"name": "withdrawed",
+				"type": "bool"
+			},
+			{
+				"name": "king",
+				"type": "bool"
+			},
+			{
+				"name": "speeched",
+				"type": "bool"
+			},
+			{
+				"name": "speech",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "roundVoted",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_to",
+				"type": "address"
+			}
+		],
+		"name": "vote",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getMembers",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "sendMoneyToWinner",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_name",
+				"type": "string"
+			}
+		],
+		"name": "signUp",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_to",
+				"type": "address"
+			}
+		],
+		"name": "_transferComplete",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "getMemberDetails",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			},
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "checkMemberToID",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_from",
+				"type": "address"
+			}
+		],
+		"name": "getMemberDetailsByAddress",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "memberVoted",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_to",
+				"type": "address"
+			}
+		],
+		"name": "_transfer",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "_king",
+				"type": "bool"
+			}
+		],
+		"name": "NewMember",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_from",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "_to",
+				"type": "address"
+			}
+		],
+		"name": "Voted",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_to",
+				"type": "address"
+			}
+		],
+		"name": "TransferMoneyToVoted",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_from",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "_name",
+				"type": "string"
+			}
+		],
+		"name": "signedUp",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "memId",
+				"type": "uint256"
+			}
+		],
+		"name": "speeched",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [],
+		"name": "startVote",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "vote1",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "vote2",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "vote3",
+				"type": "uint256"
+			}
+		],
+		"name": "voteUpdate",
+		"type": "event"
+	}
+];
+    let hui;
+    let huiAddress = "0xE0711A9A1dbaB51aCeAE0bFBf20372A6316c97Ba";
+    var userAccount = 0;
+    var signUpEvent;
+    var voteStart;
+    var transferMoney;
+    var voteUpdate;
+    var newMember;
+
+    function startApp() {
+        hui = web3.eth.contract(huiABI).at(huiAddress);
+        signUpEvent = hui.signedUp();
+        voteStart = hui.startVote();
+        voteUpdate = hui.voteUpdate();
+        transferMoney = hui.TransferMoneyToVoted();
+        newMember = hui.NewMember();
+        signUpEvent.watch(function(e,r) {
+          $('#my-info').replaceWith(`<p>Congratulation! You signed up to the Hui!</p>`);
+          getMemberDetailsByAddress(r.args._from, $('#my-info'));
+        });
+
+        voteStart.watch(function(e,r) {
+          $('#vote').removeClass('hide');
+        })
+
+        voteUpdate.watch(function(e,r) {
+          $('.vote-result').removeClass('hide');
+          $('#vote1').replaceWith(r.args.vote1.c[0]);
+          $('#vote2').replaceWith(r.args.vote2.c[0]);
+          $('#vote3').replaceWith(r.args.vote3.c[0]);
+        });
+
+        transferMoney.watch(function(e,r) {
+            $('.vote-result').append('winner account:' + r.args._to);
+        });
+
+        newMember.watch(function (e,r) {
+          console.log(r);
+        })
+    }
+
+    function getAccount() {
+        if(web3.eth.accounts.length) {
+          $('.container').removeClass('hide');
+          $('.warning')[0].innerHTML = "<p>Welcome to the Hui!</p>"
+          setInterval(function() {
+            $('.warning').addClass('hide');
+          }, 5000);
+            userAccount = web3.eth.accounts[0];
+            startApp();
+            getMemberDetailsByAddress(userAccount, $('#my-info'))
+        } else {
+            $('.warning')[0].innerHTML = "<p>Please Sign In to your wallet!</p>"
+            $('.container').addClass('hide')
+            setInterval(function () {
+                getAccount()
+            }, 5000)
+        }
+    }
+
+    function getMembers() {
+        hui.getMembers(function (e, r) {
+            $('#zombies').removeClass('hide');
+            $("#zombies").empty();
+            $('#zombies').append(`<p>Total: ${r.c[0]}</p>`);
+            displayMembers(r.c[0]);
+            if(r.c[0] == 3) {
+              $('#vote').removeClass('hide');
+            }
+        });
+
+    }
+    function displayMembers(ids) {
+        for (var i =0; i<ids; i++) {
+            getMemberDetails(i, $("#zombies"))
+        }
+    }
+
+    function joinHui(name) {
+        return hui.signUp(name, function(e,r) {
+          if(e){
+            showWarning(e, 2000);
+          } else {
+            window.open('https://ropsten.etherscan.io/tx/' + r, '_blank');
+          }
+        })
+    }
+
+    function getMemberDetails(id, des) {
+        hui.getMemberDetails(id, function (error , result) {
+            des.append(`<p>Username: ${result[1]}</p>
+              <p>Address: ${result[0]}</p>
+              <span>Withdrawed: ${result[2]}</span>
+              <span>King: ${result[3]}</span>
+              <span>Message: ${result[5]}</span>`);
+            $('#vote_option'+(id+1))[0].innerText = result[1];
+            $('#vote_option'+(id+1)).attr('data-value', result[0]);
+          })
+    }
+
+    function getMemberDetailsByAddress(acc, target) {
+        hui.getMemberDetailsByAddress(acc, function (error, result) {
+            if(result.c[0] == 0 ) {
+                $('.join-div').removeClass('hide');
+                $('#get-my-info').addClass('hide');
+            } else {
+                $('#join').addClass('hide');
+                $('#get-my-info, #my-info, #getmem').removeClass('hide');
+                getMemberDetails(result.c[0] - 1, $('#my-info'));
+            }
+        })
+    }
+
+    function transfer() {
+      hui._transfer("0x3b2dfb92ae6e28c3eab5cbaf22d9edae53a47f29", function(e,r) {
+        console.log(e+r);
+      })
+    }
+
+    function sendMoney() {
+      hui.sendMoneyToContract({value: web3.toWei('1', 'ether')}, function(e,r) {
+        console.log(r);
+      });
+    }
+
+    function viewAccountBalance() {
+      hui.viewBalance(function(e,r) {
+        console.log(r.c[0]/10000);
+      })
+    }
+
+    function withdawFromContract() {
+      hui._transfer(userAccount, function(e,r) {
+        console.log(r);
+      })
+    }
+
+    function showWarning(message, timeout) {
+        $('.warning p')[0].innerText = message;
+        $('.warning').removeClass('hide');
+        setInterval(function() {
+          $('.warning').addClass('hide');
+        }, timeout);
+    }
+
+    $(document).ready(function(){
+        $(window).on("load", function() {
+            if (typeof web3 !== 'undefined') {
+                console.log(web3.version)
+                web3 = new Web3(web3.currentProvider);
+                console.log(web3.version)
+            } else {
+             // set the provider you want from Web3.provide
+                web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8080"));
+            }
+
+            // if(typeof window.web3 !== "undefined" && typeof window.web3.currentProvider !== "undefined") {
+            //   var web3 = new Web3(window.web3.currentProvider);
+            // } else {
+            //   var web3 = new Web3();
+            // }
+
+
+            getAccount();
+
+            $('#join').on('click', function () {
+                joinHui('ducph3')
+            });
+
+            $('#getmem').on('click', function () {
+                getMembers();
+            });
+
+            $('#get-my-info').on('click', function() {
+              getMemberDetailsByAddress(web3.eth.accounts[0], $('#my-info'))
+            });
+
+            $('#vote').on('click', function() {
+              $('.vote_candidate').removeClass('hide');
+            })
+
+            $('.vote_button').on('click', function() {
+              hui.vote($(this).data('value'), function (e,r) {
+                console.log(r);
+              })
+            })
+        });
+    });
+</script>
+</body>
+</html>
